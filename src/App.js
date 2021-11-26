@@ -1,7 +1,7 @@
 import logo from "./logo.svg";
 import "./App.css";
 
-import { onSnapshot, collection } from "firebase/firestore";
+import { onSnapshot, collection, addDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import db from "./firebase";
 
@@ -28,9 +28,21 @@ function App() {
     []
   );
 
+  const handleNew = async () => {
+    const name = prompt("Enter color name");
+    const value = prompt("Enter color value");
+
+    const collectionRef = collection(db, "colors", "");
+    const payload = { name, value };
+    const docRef = addDoc(collectionRef, payload);
+    console.log("The new ID:" + docRef.id);
+  };
+
   return (
     <div className="root">
-      <button className="button">New</button>
+      <button className="button" onClick={handleNew}>
+        New
+      </button>
 
       <ul>
         {colors.map((color) => (
