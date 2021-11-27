@@ -1,41 +1,55 @@
-import logo from "./logo.svg";
 import "./App.css";
 
-import { onSnapshot, collection, addDoc } from "firebase/firestore";
+import { onSnapshot, collection, query, orderBy } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import db from "./firebase";
 import Dot from "./Dot";
 import { handleNew, handleEdit, handleDelete, handleQueryDelete } from "./util";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Button from "react-bootstrap/Button";
 
 function App() {
   const [colors, setColors] = useState([{ name: "Loading", id: "initial" }]);
   console.log(colors);
-  useEffect(
-    () =>
-      onSnapshot(collection(db, "colors"), (snapshot) =>
-        setColors(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
-      ),
-    []
-  );
+  useEffect(() => {
+    const collectionRef = collection(db, "colors");
+    const q = query(collectionRef, orderBy("timestamp", "desc"));
+    const unsub = onSnapshot(q, (snapshot) =>
+      setColors(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+    );
+    return unsub;
+  }, []);
 
   return (
     <div className="root">
-      <button className="button" onClick={handleNew}>
+      <Button variant="primary" className="buttonMargin" onClick={handleNew}>
         New
-      </button>
-      <button className="button" onClick={handleQueryDelete}>
+      </Button>
+      <Button
+        variant="primary"
+        className="buttonMargin"
+        onClick={handleQueryDelete}
+      >
         Query Delete
-      </button>
+      </Button>
 
       <ul>
         {colors.map((color) => (
           <li key={color.id}>
-            <button className="button2" onClick={() => handleEdit(color.id)}>
+            <Button
+              variant="warning"
+              className="buttonMargin"
+              onClick={() => handleEdit(color.id)}
+            >
               edit
-            </button>
-            <button className="button2" onClick={() => handleDelete(color.id)}>
+            </Button>
+            <Button
+              variant="danger"
+              className="buttonMargin"
+              onClick={() => handleDelete(color.id)}
+            >
               delete
-            </button>
+            </Button>
             <Dot color={color.value} /> {color.name}
           </li>
         ))}
